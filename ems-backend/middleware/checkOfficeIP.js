@@ -1,21 +1,33 @@
-// middleware/checkOfficeIP.js
 const AdminSettings = require('../models/AdminSettings');
 
 const normalizeIP = (ip = '') =>
-  ip.replace('::ffff:', '').replace('::1', '127.0.0.1').trim();
+  ip.replace(/\s+/g, '').replace('::ffff:', '').replace('::1', '127.0.0.1').trim();
 
 module.exports = async (req, res, next) => {
   try {
-    // Extract all IPs from x-forwarded-for (comma separated)
-    const rawIP = req.headers['x-forwarded-for'] || req.socket.remoteAddress || '';
+    const rawHeader = req.headers['x-forwarded-for'] || '';
+    const rawIP = rawHeader || req.socket.remoteAddress || '';
     const forwardedIPs = rawIP.split(',').map(normalizeIP);
-    const clientIP = forwardedIPs[0]; // Display only first one for reference
+    const clientIP = forwardedIPs[0];
 
-    console.log(`\u{1F50D} Client IPs:`, forwardedIPs);
+    const localIPFromClient = normalizeIP(req.body.localIP || '');
 
-    // Allow localhost in dev mode
+    console.log('------------------------------------------');
+    console.log(`🔍 Raw x-forwarded-for: ${rawHeader}`);
+    console.log(`🔍 Raw IP fallback: ${req.socket.remoteAddress}`);
+    console.log(`🔍 Normalized Client IP: ${clientIP}`);
+    console.log(`🔍 All Forwarded IPs: ${forwardedIPs.join(', ')}`);
+    console.log(`📱 Local IP from client device: ${localIPFromClient}`);
+
+    // Allow localhost (127.0.0.1) in development
     if (forwardedIPs.includes('127.0.0.1')) {
-      req.networkCheck = { clientIP, ipAllowed: true, deviceAllowed: true };
+      console.log('🛠 Localhost detected — skipping restriction.');
+      req.networkCheck = {
+        clientIP,
+        localIP: localIPFromClient,
+        ipAllowed: true,
+        deviceAllowed: true,
+      };
       return next();
     }
 
@@ -35,20 +47,27 @@ module.exports = async (req, res, next) => {
     ).map(normalizeIP).filter(Boolean);
 
     const ipAllowed = forwardedIPs.some(ip => allowed_ips.includes(ip));
-    const deviceAllowed = forwardedIPs.some(ip => allowed_devices.includes(ip));
+    const deviceAllowed = allowed_devices.includes(localIPFromClient);
 
-    req.networkCheck = { clientIP, ipAllowed, deviceAllowed };
+    req.networkCheck = {
+      clientIP,
+      localIP: localIPFromClient,
+      ipAllowed,
+      deviceAllowed,
+    };
 
-    console.log('✅ Allowed IPs:', allowed_ips);
-    console.log('✅ Allowed Devices:', allowed_devices);
-    console.log(`➡️ Matched IP: ${clientIP}, ipAllowed: ${ipAllowed}, deviceAllowed: ${deviceAllowed}`);
+    console.log(`✅ Allowed WiFi IPs: ${allowed_ips.join(', ')}`);
+    console.log(`✅ Allowed Device IPs: ${allowed_devices.join(', ')}`);
+    console.log(`✅ Match result: IP Allowed = ${ipAllowed}, Device Allowed = ${deviceAllowed}`);
+    console.log('------------------------------------------');
 
     if (!ipAllowed && !deviceAllowed) {
       return res.status(403).json({
         message: 'Access denied. Not on allowed WiFi or device.',
         clientIP,
+        localIP: localIPFromClient,
         ipAllowed,
-        deviceAllowed
+        deviceAllowed,
       });
     }
 

@@ -7,6 +7,7 @@ import TaskSection from './TaskSection';
 import ChangePasswordSection from './ChangePasswordSection';
 import WorkingHoursSection from './WorkingHoursSection';
 import EmployeeCorrectionRequest from './EmployeeCorrectionRequest';
+import { getLocalIP } from './utils/getLocalIP';
 
 function EmployeeDashboard() {
   const token = localStorage.getItem('token');
@@ -166,37 +167,40 @@ function EmployeeDashboard() {
     setPhoto(file);
   };
 
-  const handlePunch = async () => {
-    if (!wifiAllowed || !deviceAllowed) {
-      alert("Punch failed. You're not on allowed WiFi or device.");
-      return;
-    }
+ const handlePunch = async () => {
+  if (!wifiAllowed || !deviceAllowed) {
+    alert("Punch failed. You're not on allowed WiFi or device.");
+    return;
+  }
 
-    const isPunchIn = !status.punch_in;
+  const isPunchIn = !status.punch_in;
 
-    if (isPunchIn && !photo) {
-      alert("Punch In requires a photo. Please upload a selfie.");
-      return;
-    }
+  if (isPunchIn && !photo) {
+    alert("Punch In requires a photo. Please upload a selfie.");
+    return;
+  }
 
+  try {
+    const localIP = await getLocalIP();
     const formData = new FormData();
     if (isPunchIn) formData.append('photo', photo);
+    formData.append('localIP', localIP); // 👈 Send device IP to backend
 
-    try {
-      const res = await fetch(`${API_BASE}/api/attendance/punch`, {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${token}` },
-        body: formData,
-      });
-      const data = await res.json();
-      alert(data.message);
-      fetchStatus();
-      if (isPunchIn) setPhoto(null);
-    } catch (err) {
-      console.error('Punch error:', err);
-      alert('Punch failed');
-    }
-  };
+    const res = await fetch(`${API_BASE}/api/attendance/punch`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` },
+      body: formData,
+    });
+
+    const data = await res.json();
+    alert(data.message);
+    fetchStatus();
+    if (isPunchIn) setPhoto(null);
+  } catch (err) {
+    console.error('Punch error:', err);
+    alert('Punch failed');
+  }
+};
 
   return (
     <div className="dashboard-container">
