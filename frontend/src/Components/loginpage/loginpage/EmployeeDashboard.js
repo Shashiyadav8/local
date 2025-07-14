@@ -25,14 +25,12 @@ function EmployeeDashboard() {
   const [photo, setPhoto] = useState(null);
   const [workDuration, setWorkDuration] = useState('00h 00m 00s');
 
-  // ❗ Check authentication
   useEffect(() => {
     if (!token || !user) {
       navigate('/');
     }
   }, [token, user, navigate]);
 
-  // ⏰ Real-time clock
   useEffect(() => {
     const interval = setInterval(() => setClock(new Date()), 1000);
     return () => clearInterval(interval);
@@ -43,6 +41,7 @@ function EmployeeDashboard() {
       const res = await authFetch(`${API_BASE}/api/attendance/status`, {
         headers: { Authorization: `Bearer ${token}` },
       });
+      if (!res) return;
       const data = await res.json();
       setStatus(data);
       setError('');
@@ -62,6 +61,7 @@ function EmployeeDashboard() {
       const ipRes = await authFetch(`${API_BASE}/api/ip/client-ip`, {
         headers: { Authorization: `Bearer ${token}` },
       });
+      if (!ipRes) return;
       const ipData = await ipRes.json();
       const rawIPs = (ipData.ip || '').split(',');
       const primaryIP = normalizeIP(rawIPs[0]);
@@ -70,12 +70,14 @@ function EmployeeDashboard() {
       const wifiRes = await authFetch(`${API_BASE}/api/ip/wifi-ips`, {
         headers: { Authorization: `Bearer ${token}` },
       });
+      if (!wifiRes) return;
       const wifiData = await wifiRes.json();
       setWifiAllowed(wifiData.map(normalizeIP).includes(primaryIP));
 
-      const deviceRes = await authFetch(`${API_BASE}/api/ip/device-ips/${user.id}`, {
+      const deviceRes = await authFetch(`${API_BASE}/api/ip/device-ips/${user._id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
+      if (!deviceRes) return;
       const deviceData = await deviceRes.json();
       setDeviceAllowed(deviceData.map(normalizeIP).includes(primaryIP));
     } catch (err) {
@@ -202,6 +204,7 @@ function EmployeeDashboard() {
         body: formData,
       });
 
+      if (!res) return;
       const data = await res.json();
       alert(data.message);
       fetchStatus();
