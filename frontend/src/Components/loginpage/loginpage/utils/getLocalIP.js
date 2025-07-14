@@ -2,15 +2,15 @@
 
 export const getLocalIP = async () => {
   try {
-    const res = await fetch('http://localhost:3001/api/ip', {
+    const res = await fetch('https://loca-z5qy.onrender.com/api/ip', {
       method: 'GET',
       headers: {
-        'Accept': 'application/json'
-      }
+        'Accept': 'application/json',
+      },
     });
 
     if (!res.ok) {
-      console.warn('Local IP helper returned an error status:', res.status);
+      console.warn('🌐 IP Helper error status:', res.status);
       return '127.0.0.1';
     }
 
@@ -19,11 +19,11 @@ export const getLocalIP = async () => {
       console.log('📡 Local IP from helper:', data.ip);
       return data.ip;
     } else {
-      console.warn('⚠️ Helper returned invalid IP response');
+      console.warn('⚠️ IP Helper returned invalid response');
       return '127.0.0.1';
     }
   } catch (error) {
-    console.error('❌ Failed to fetch local IP from helper:', error);
+    console.error('❌ Local IP fetch error:', error.message);
     return '127.0.0.1';
   }
 };
