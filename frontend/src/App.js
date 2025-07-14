@@ -17,7 +17,7 @@ function App() {
   });
 
   useEffect(() => {
-    document.title = "INDIAN SCIENTIFIC AEROSPACE AND ROBOTICS";
+    document.title = "ISAR EMS";
     AOS.init({ duration: 1000 });
   }, []);
 
