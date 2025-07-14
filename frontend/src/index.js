@@ -11,7 +11,7 @@ root.render(
    <App />
 </BrowserRouter>);
 <Helmet>
-        <title>INDIAN SCIENTIFIC AEROSPACE AND ROBOTICS</title>
+        <title>ISAR EMS</title>
         <meta
           name="description"
           content="Join ISAR – the top drone training center in India offering expert-led courses in drone technology, aerospace, and robotics. Enroll in Chennai’s leading drone institute today. drone training. drone training . "
