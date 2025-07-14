@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import './WorkingHoursSection.css';
+import { authFetch } from './utils/authFetch';
 
 const WorkingHoursSection = () => {
   const [month, setMonth] = useState('');
@@ -17,7 +18,7 @@ const WorkingHoursSection = () => {
       }
 
       try {
-        const res = await fetch(`${process.env.REACT_APP_API_URL}/api/attendance/summary?month=${month}`, {
+        const res = await authFetch(`${process.env.REACT_APP_API_URL}/api/attendance/summary?month=${month}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',

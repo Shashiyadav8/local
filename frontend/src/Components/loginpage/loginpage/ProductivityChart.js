@@ -10,6 +10,7 @@ import {
   Legend,
 } from 'chart.js';
 import './ProductivityChart.css';
+import { authFetch } from './utils/authFetch';
 
 // Register ChartJS components
 ChartJS.register(BarElement, CategoryScale, LinearScale, Title, Tooltip, Legend);
@@ -27,7 +28,7 @@ const ProductivityChart = () => {
   useEffect(() => {
     const fetchProductivity = async () => {
       try {
-        const res = await fetch(`${API_BASE}/api/employees/productivity`, {
+        const res = await authFetch(`${API_BASE}/api/employees/productivity`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },

@@ -1,37 +1,29 @@
+// src/Components/loginpage/loginpage/utils/getLocalIP.js
+
 export const getLocalIP = async () => {
-  return new Promise((resolve) => {
-    try {
-      const pc = new RTCPeerConnection({ iceServers: [] });
-      pc.createDataChannel('');
+  try {
+    const res = await fetch('http://localhost:3001/api/ip', {
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json'
+      }
+    });
 
-      pc.onicecandidate = (event) => {
-        if (!event || !event.candidate) {
-          // ❗ No candidate found, fallback to localhost
-          resolve('127.0.0.1');
-          return;
-        }
-
-        const ipRegex = /([0-9]{1,3}(\.[0-9]{1,3}){3})/;
-        const match = event.candidate.candidate.match(ipRegex);
-        if (match) {
-          resolve(match[1]);
-        } else {
-          resolve('127.0.0.1'); // No match, fallback
-        }
-      };
-
-      pc.createOffer()
-        .then(offer => pc.setLocalDescription(offer))
-        .catch((err) => {
-          console.error('Offer error:', err);
-          resolve('127.0.0.1');
-        });
-
-      // Safety timeout
-      setTimeout(() => resolve('127.0.0.1'), 3000);
-    } catch (err) {
-      console.error('getLocalIP Error:', err);
-      resolve('127.0.0.1');
+    if (!res.ok) {
+      console.warn('Local IP helper returned an error status:', res.status);
+      return '127.0.0.1';
     }
-  });
+
+    const data = await res.json();
+    if (data && data.ip) {
+      console.log('📡 Local IP from helper:', data.ip);
+      return data.ip;
+    } else {
+      console.warn('⚠️ Helper returned invalid IP response');
+      return '127.0.0.1';
+    }
+  } catch (error) {
+    console.error('❌ Failed to fetch local IP from helper:', error);
+    return '127.0.0.1';
+  }
 };

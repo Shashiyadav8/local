@@ -1,7 +1,7 @@
 // src/Components/ChangePasswordSection.js
 import React, { useState } from 'react';
 import './ChangePasswordSection.css';
-
+import { authFetch } from './utils/authFetch';
 const ChangePasswordSection = () => {
   const [showForm, setShowForm] = useState(false);
   const [step, setStep] = useState(1);
@@ -21,7 +21,7 @@ const ChangePasswordSection = () => {
     setMessage('');
     setError('');
     try {
-      const res = await fetch(`${API_BASE}/api/auth/request-otp`, {
+      const res = await authFetch(`${API_BASE}/api/auth/request-otp`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email }),
@@ -47,7 +47,7 @@ const ChangePasswordSection = () => {
     }
 
     try {
-      const res = await fetch(`${API_BASE}/api/auth/verify-otp-change-password`, {
+      const res = await authFetch(`${API_BASE}/api/auth/verify-otp-change-password`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, otp, newPassword }),

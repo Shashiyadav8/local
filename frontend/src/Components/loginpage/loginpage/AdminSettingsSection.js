@@ -1,6 +1,7 @@
 // src/Components/admin/AdminSettingsSection.js
 import React, { useEffect, useState } from 'react';
 import './AdminSettingsSection.css';
+import { authFetch } from './utils/authFetch';
 
 const AdminSettingsSection = () => {
   const [allowedIps, setAllowedIps] = useState('');
@@ -14,7 +15,7 @@ const AdminSettingsSection = () => {
   useEffect(() => {
     const fetchSettings = async () => {
       try {
-        const res = await fetch(`${API_BASE}/api/admin/settings`, {
+        const res = await authFetch(`${API_BASE}/api/admin/settings`, {
           headers: {
             Authorization: `Bearer ${token}`
           }
@@ -58,7 +59,7 @@ const AdminSettingsSection = () => {
         .map(ip => ip.trim())
         .filter(Boolean);
 
-      const res = await fetch(`${API_BASE}/api/admin/settings`, {
+      const res = await authFetch(`${API_BASE}/api/admin/settings`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

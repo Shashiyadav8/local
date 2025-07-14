@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import './TaskSection.css';
+import { authFetch } from './utils/authFetch';
 
 const TaskSection = () => {
   const [tasks, setTasks] = useState([]);
@@ -12,7 +13,7 @@ const TaskSection = () => {
 
   const fetchTasks = useCallback(async () => {
     try {
-      const res = await fetch(`${API_BASE}/api/tasks`, {
+      const res = await authFetch(`${API_BASE}/api/tasks`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -29,7 +30,7 @@ const TaskSection = () => {
   useEffect(() => {
     const fetchProfileAndTasks = async () => {
       try {
-        const res = await fetch(`${API_BASE}/api/profile`, {
+        const res = await authFetch(`${API_BASE}/api/profile`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -56,7 +57,7 @@ const TaskSection = () => {
     }
 
     try {
-      const res = await fetch(`${API_BASE}/api/tasks`, {
+      const res = await authFetch(`${API_BASE}/api/tasks`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -80,7 +81,7 @@ const TaskSection = () => {
 
   const handleStatusChange = async (id, status) => {
     try {
-      const res = await fetch(`${API_BASE}/api/tasks/${id}`, {
+      const res = await authFetch(`${API_BASE}/api/tasks/${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

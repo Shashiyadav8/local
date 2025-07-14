@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import './ProfileSection.css'; // Ensure CSS is correctly linked
+import { authFetch } from './utils/authFetch';
 
 function ProfileSection() {
   const [profile, setProfile] = useState(null);
@@ -12,7 +13,7 @@ function ProfileSection() {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const res = await fetch(`${API_BASE}/api/profile`, {
+        const res = await authFetch(`${API_BASE}/api/profile`, {
           headers: {
             'Authorization': `Bearer ${token}`,
           },
@@ -39,7 +40,7 @@ function ProfileSection() {
 
   const handleSave = async () => {
     try {
-      const res = await fetch(`${API_BASE}/api/profile`, {
+      const res = await authFetch(`${API_BASE}/api/profile`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

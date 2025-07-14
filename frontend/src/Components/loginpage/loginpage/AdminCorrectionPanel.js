@@ -1,6 +1,7 @@
 // src/Components/AdminCorrectionPanel.js
 import React, { useEffect, useState, useCallback } from 'react';
 import './AdminDashboard.css';
+import { authFetch } from './utils/authFetch';
 
 function AdminCorrectionPanel({ token }) {
   const [requests, setRequests] = useState([]);
@@ -12,7 +13,7 @@ function AdminCorrectionPanel({ token }) {
 
   const fetchRequests = useCallback(async () => {
     try {
-      const res = await fetch(`${API_BASE}/api/corrections`, {
+      const res = await authFetch(`${API_BASE}/api/corrections`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (!res.ok) throw new Error('Failed to fetch corrections');
@@ -67,7 +68,7 @@ function AdminCorrectionPanel({ token }) {
     const { id, actionType, admin_comment } = modalData;
 
     try {
-      const res = await fetch(`${API_BASE}/api/corrections/${id}`, {
+      const res = await authFetch(`${API_BASE}/api/corrections/${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

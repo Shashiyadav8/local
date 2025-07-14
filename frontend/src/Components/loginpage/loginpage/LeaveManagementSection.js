@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import './LeaveManagementSection.css';
+import { authFetch } from './utils/authFetch';
 
 function LeaveManagementSection() {
   const [leaves, setLeaves] = useState([]);
@@ -11,7 +12,7 @@ function LeaveManagementSection() {
 
   const fetchLeaves = useCallback(async () => {
     try {
-      const res = await fetch(`${API_BASE}/api/leaves/admin`, {
+      const res = await authFetch(`${API_BASE}/api/leaves/admin`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -30,7 +31,7 @@ function LeaveManagementSection() {
 
   const handleApprove = async (id) => {
     try {
-      const res = await fetch(`${API_BASE}/api/leaves/${id}/approve`, {
+      const res = await authFetch(`${API_BASE}/api/leaves/${id}/approve`, {
         method: 'PUT',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -45,7 +46,7 @@ function LeaveManagementSection() {
 
   const handleReject = async (id) => {
     try {
-      const res = await fetch(`${API_BASE}/api/leaves/${id}/reject`, {
+      const res = await authFetch(`${API_BASE}/api/leaves/${id}/reject`, {
         method: 'PUT',
         headers: {
           Authorization: `Bearer ${token}`,

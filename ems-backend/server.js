@@ -35,6 +35,7 @@ app.use('/api/admin', adminAnalyticsRoutes);
 app.use('/api/admin/settings', settingsRoutes);
 app.use('/api/ip', ipCheckRoutes);
 app.use('/api/corrections', punchCorrectionRoutes);
+app.get('/ping', (req, res) => {res.send('pong');});
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {

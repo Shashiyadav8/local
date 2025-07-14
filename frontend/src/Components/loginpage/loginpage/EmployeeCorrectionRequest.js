@@ -1,7 +1,7 @@
 // src/Components/EmployeeCorrectionRequest.js
 import React, { useState } from 'react';
 import './EmployeeCorrectionRequest.css';
-
+import { authFetch } from './utils/authFetch';
 function EmployeeCorrectionRequest({ token }) {
   const [form, setForm] = useState({
     date: '',
@@ -59,7 +59,7 @@ function EmployeeCorrectionRequest({ token }) {
 
     try {
       setLoading(true);
-      const res = await fetch(`${API_BASE}/api/corrections`, {
+      const res = await authFetch(`${API_BASE}/api/corrections`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

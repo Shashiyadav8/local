@@ -1,7 +1,7 @@
 // src/Components/EmployeeProfileViewer.js
 import React, { useEffect, useState } from 'react';
 import './EmployeeProfileViewer.css';
-
+import { authFetch } from './utils/authFetch';
 const EmployeeProfileViewer = () => {
   const [profiles, setProfiles] = useState([]);
   const [filteredProfiles, setFilteredProfiles] = useState([]);
@@ -13,7 +13,7 @@ const EmployeeProfileViewer = () => {
   useEffect(() => {
     const fetchProfiles = async () => {
       try {
-        const res = await fetch(`${API_BASE}/api/employees/profiles`, {
+        const res = await authFetch(`${API_BASE}/api/employees/profiles`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },

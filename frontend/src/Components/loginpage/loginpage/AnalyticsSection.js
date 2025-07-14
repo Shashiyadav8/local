@@ -11,6 +11,7 @@ import {
   Tooltip,
   Legend,
 } from 'chart.js';
+import { authFetch } from './utils/authFetch';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
@@ -25,7 +26,7 @@ const AnalyticsSection = () => {
   useEffect(() => {
     const fetchAnalytics = async () => {
       try {
-        const res = await fetch(`${API_BASE}/api/admin/analytics`, {
+        const res = await authFetch(`${API_BASE}/api/admin/analytics`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },

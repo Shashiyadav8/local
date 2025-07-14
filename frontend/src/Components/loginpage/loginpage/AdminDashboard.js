@@ -8,6 +8,7 @@ import AnalyticsSection from './AnalyticsSection';
 import EmployeeProfileViewer from './EmployeeProfileViewer';
 import AdminSettingsSection from './AdminSettingsSection';
 import AdminCorrectionPanel from './AdminCorrectionPanel';
+import { authFetch } from './utils/authFetch';
 
 const AdminDashboard = () => {
   const [records, setRecords] = useState([]);
@@ -33,7 +34,7 @@ const AdminDashboard = () => {
 
   const fetchRecords = useCallback(async () => {
     try {
-      const res = await fetch(`${API_BASE}/api/attendance/attendance-records`, {
+      const res = await authFetch(`${API_BASE}/api/attendance/attendance-records`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (!res.ok) throw new Error('Failed to fetch attendance');
@@ -49,7 +50,7 @@ const AdminDashboard = () => {
 
   const fetchEmployees = useCallback(async () => {
     try {
-      const res = await fetch(`${API_BASE}/api/employees`, {
+      const res = await authFetch(`${API_BASE}/api/employees`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (!res.ok) throw new Error('Failed to fetch employees');
@@ -109,7 +110,7 @@ const AdminDashboard = () => {
     }
 
     try {
-      const res = await fetch(`${API_BASE}/api/employees`, {
+      const res = await authFetch(`${API_BASE}/api/employees`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -136,7 +137,7 @@ const AdminDashboard = () => {
 
   const handleDeleteEmployee = async (id) => {
     try {
-      const res = await fetch(`${API_BASE}/api/employees/${id}`, {
+      const res = await authFetch(`${API_BASE}/api/employees/${id}`, {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -160,7 +161,7 @@ const AdminDashboard = () => {
 
   const updateLeaveQuota = async (id, quota) => {
     try {
-      const res = await fetch(`${API_BASE}/api/employees/${id}/leave-quota`, {
+      const res = await authFetch(`${API_BASE}/api/employees/${id}/leave-quota`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -178,7 +179,7 @@ const AdminDashboard = () => {
 
   const handleViewPhoto = async (id) => {
     try {
-      const res = await fetch(`${API_BASE}/api/attendance/photo/${id}`, {
+      const res = await authFetch(`${API_BASE}/api/attendance/photo/${id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (!res.ok) throw new Error();

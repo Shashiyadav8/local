@@ -8,8 +8,10 @@ import ChangePasswordSection from './ChangePasswordSection';
 import WorkingHoursSection from './WorkingHoursSection';
 import EmployeeCorrectionRequest from './EmployeeCorrectionRequest';
 import { getLocalIP } from './utils/getLocalIP';
+import { authFetch } from './utils/authFetch';
 
 function EmployeeDashboard() {
+  const navigate = useNavigate();
   const token = localStorage.getItem('token');
   const user = JSON.parse(localStorage.getItem('user'));
   const API_BASE = process.env.REACT_APP_API_URL;
@@ -22,8 +24,15 @@ function EmployeeDashboard() {
   const [deviceAllowed, setDeviceAllowed] = useState(false);
   const [photo, setPhoto] = useState(null);
   const [workDuration, setWorkDuration] = useState('00h 00m 00s');
-  const navigate = useNavigate();
 
+  // ❗ Check authentication
+  useEffect(() => {
+    if (!token || !user) {
+      navigate('/');
+    }
+  }, [token, user, navigate]);
+
+  // ⏰ Real-time clock
   useEffect(() => {
     const interval = setInterval(() => setClock(new Date()), 1000);
     return () => clearInterval(interval);
@@ -31,7 +40,7 @@ function EmployeeDashboard() {
 
   const fetchStatus = useCallback(async () => {
     try {
-      const res = await fetch(`${API_BASE}/api/attendance/status`, {
+      const res = await authFetch(`${API_BASE}/api/attendance/status`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
@@ -46,10 +55,11 @@ function EmployeeDashboard() {
   const verifyIPs = useCallback(async () => {
     if (!user) return;
 
-    const normalizeIP = (ip = '') => ip.replace(/\s+/g, '').replace('::ffff:', '').replace('::1', '127.0.0.1');
+    const normalizeIP = (ip = '') =>
+      ip.replace(/\s+/g, '').replace('::ffff:', '').replace('::1', '127.0.0.1');
 
     try {
-      const ipRes = await fetch(`${API_BASE}/api/ip/client-ip`, {
+      const ipRes = await authFetch(`${API_BASE}/api/ip/client-ip`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const ipData = await ipRes.json();
@@ -57,13 +67,13 @@ function EmployeeDashboard() {
       const primaryIP = normalizeIP(rawIPs[0]);
       setIp(rawIPs.map(normalizeIP).join(', '));
 
-      const wifiRes = await fetch(`${API_BASE}/api/ip/wifi-ips`, {
+      const wifiRes = await authFetch(`${API_BASE}/api/ip/wifi-ips`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const wifiData = await wifiRes.json();
       setWifiAllowed(wifiData.map(normalizeIP).includes(primaryIP));
 
-      const deviceRes = await fetch(`${API_BASE}/api/ip/device-ips/${user.id}`, {
+      const deviceRes = await authFetch(`${API_BASE}/api/ip/device-ips/${user.id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const deviceData = await deviceRes.json();
@@ -121,7 +131,7 @@ function EmployeeDashboard() {
 
   const handleDownloadAttendance = async () => {
     try {
-      const res = await fetch(`${API_BASE}/api/attendance/export`, {
+      const res = await authFetch(`${API_BASE}/api/attendance/export`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const blob = await res.blob();
@@ -140,7 +150,7 @@ function EmployeeDashboard() {
 
   const handleDownloadLeaves = async () => {
     try {
-      const res = await fetch(`${API_BASE}/api/leaves/export`, {
+      const res = await authFetch(`${API_BASE}/api/leaves/export`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const blob = await res.blob();
@@ -167,40 +177,40 @@ function EmployeeDashboard() {
     setPhoto(file);
   };
 
- const handlePunch = async () => {
-  if (!wifiAllowed || !deviceAllowed) {
-    alert("Punch failed. You're not on allowed WiFi or device.");
-    return;
-  }
+  const handlePunch = async () => {
+    if (!wifiAllowed || !deviceAllowed) {
+      alert("Punch failed. You're not on allowed WiFi or device.");
+      return;
+    }
 
-  const isPunchIn = !status.punch_in;
+    const isPunchIn = !status.punch_in;
 
-  if (isPunchIn && !photo) {
-    alert("Punch In requires a photo. Please upload a selfie.");
-    return;
-  }
+    if (isPunchIn && !photo) {
+      alert("Punch In requires a photo. Please upload a selfie.");
+      return;
+    }
 
-  try {
-    const localIP = await getLocalIP();
-    const formData = new FormData();
-    if (isPunchIn) formData.append('photo', photo);
-    formData.append('localIP', localIP); // 👈 Send device IP to backend
+    try {
+      const localIP = await getLocalIP();
+      const formData = new FormData();
+      if (isPunchIn) formData.append('photo', photo);
+      formData.append('localIP', localIP);
 
-    const res = await fetch(`${API_BASE}/api/attendance/punch`, {
-      method: 'POST',
-      headers: { Authorization: `Bearer ${token}` },
-      body: formData,
-    });
+      const res = await authFetch(`${API_BASE}/api/attendance/punch`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+        body: formData,
+      });
 
-    const data = await res.json();
-    alert(data.message);
-    fetchStatus();
-    if (isPunchIn) setPhoto(null);
-  } catch (err) {
-    console.error('Punch error:', err);
-    alert('Punch failed');
-  }
-};
+      const data = await res.json();
+      alert(data.message);
+      fetchStatus();
+      if (isPunchIn) setPhoto(null);
+    } catch (err) {
+      console.error('Punch error:', err);
+      alert('Punch failed');
+    }
+  };
 
   return (
     <div className="dashboard-container">
@@ -249,11 +259,12 @@ function EmployeeDashboard() {
         )}
 
         <div className="punch-buttons">
-          <button
-            onClick={handlePunch}
-            disabled={status.punch_in && status.punch_out}
-          >
-            {status.punch_in ? (status.punch_out ? '✅ Already Punched Out' : 'Punch Out') : 'Punch In'}
+          <button onClick={handlePunch} disabled={status.punch_in && status.punch_out}>
+            {status.punch_in
+              ? status.punch_out
+                ? '✅ Already Punched Out'
+                : 'Punch Out'
+              : 'Punch In'}
           </button>
         </div>
 

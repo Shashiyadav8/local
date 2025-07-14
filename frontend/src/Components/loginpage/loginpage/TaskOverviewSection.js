@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import './TaskOverviewSection.css';
+import { authFetch } from './utils/authFetch';
 
 const TaskOverviewSection = () => {
   const [overview, setOverview] = useState([]);
@@ -15,7 +16,7 @@ const TaskOverviewSection = () => {
 
   const fetchOverview = useCallback(async () => {
     try {
-      const res = await fetch(`${API_BASE}/api/tasks/overview`, {
+      const res = await authFetch(`${API_BASE}/api/tasks/overview`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -31,7 +32,7 @@ const TaskOverviewSection = () => {
 
   const fetchEmployees = useCallback(async () => {
     try {
-      const res = await fetch(`${API_BASE}/api/employees`, {
+      const res = await authFetch(`${API_BASE}/api/employees`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -59,7 +60,7 @@ const TaskOverviewSection = () => {
     }
 
     try {
-      const res = await fetch(`${API_BASE}/api/tasks/assign`, {
+      const res = await authFetch(`${API_BASE}/api/tasks/assign`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
