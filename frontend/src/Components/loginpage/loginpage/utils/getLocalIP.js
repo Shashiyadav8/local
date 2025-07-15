@@ -5,7 +5,7 @@ export const getLocalIP = async () => {
     const res = await fetch('https://loca-1.onrender.com/api/ip', {
       method: 'GET',
       headers: {
-        'Accept': 'application/json',
+        Accept: 'application/json',
       },
     });
 
